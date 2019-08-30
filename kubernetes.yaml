@@ -1,0 +1,134 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubeedge-database
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubeedge-database
+  labels:
+    k8s-app: kubeedge
+    kubeedge: kubeedge-database
+rules:
+- apiGroups:
+  - "devices.kubeedge.io"
+  resources:
+  - devices
+  - devicemodels
+  verbs:
+  - watch
+  - get
+  - list
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeedge-database
+  labels:
+    k8s-app: kubeedge
+    kubeedge: kubeedge-database
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeedge-database
+subjects:
+- kind: ServiceAccount
+  name: kubeedge-database
+  namespace: kubeedge
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubeedge-database-database
+type: Opaque
+stringData:
+  user: demo
+  password: test-password
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: kubeedge
+    kubeedge: kubeedge-database
+  name: kubeedge-database
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kubeedge
+      kubeedge: kubeedge-database
+  template:
+    metadata:
+      labels:
+        k8s-app: kubeedge
+        kubeedge: kubeedge-database
+    spec:
+      initContainers:
+        - name: kubeconfig
+          image: alpine:3.10
+          volumeMounts:
+            - mountPath: /etc/kubeedge-database/conf
+              subPath: kubeconfig.yaml
+              name: kubeconfig
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk --no-cache add coreutils && cat | tee /etc/kubeedge-database/conf/kubeconfig.yaml <<EOF
+              apiVersion: v1
+              kind: Config
+              clusters:
+              - name: kubeedge-database
+                cluster:
+                  certificate-authority-data: $(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | base64 -w 0)
+              users:
+              - name: kubeedge-database
+                user:
+                  token: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              contexts:
+              - name: kubeedge
+                context:
+                  cluster: kubeedge
+                  user: kubeedge-database
+              current-context: kubeedge
+              EOF
+      containers:
+      - name: kubeedge-database
+        image: subpathdev/kubeedge-database:latest
+        imagePullPolicy: Always
+        env:
+          - name: DATABASE-USER
+            valueFrom:
+              secretKeyRef:
+                key: user
+                name: kubeedge-database-database
+          - name: DATABASE-PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: kubeedge-database-database
+        args:
+          - "--config=/etc/kubeedge-database/conf/kubeconfig.yaml"
+          - "--database=demo"
+          - "--address=172.17.0.4"
+          - "--port=5432"
+          - "--sslmode=disable"
+          - "--schema=public"
+          - "--timescale"
+        volumeMounts:
+          - mountPath: /etc/kubeedge-database/conf
+            name: kubeconfig
+            subPath: kubeconfig.yaml
+      volumes:
+        - name: kubeconfig
+          emptyDir: {}
+      restartPolicy: Always
+      serviceAccount: kubeedge-database
+      serviceAccountName: kubeedge-database
+
