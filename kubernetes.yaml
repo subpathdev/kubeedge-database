@@ -116,7 +116,7 @@ spec:
         args:
           - "--config=/etc/kubeedge-database/conf/kubeconfig.yaml"
           - "--database=demo"
-          - "--address=172.17.0.4"
+          - "--address=postgres-database"
           - "--port=5432"
           - "--sslmode=disable"
           - "--schema=public"
