@@ -100,7 +100,7 @@ func handleKube(event chan watch.Event, db database.Database) {
 				}
 				err := db.Insert(tt, twin.Reported.Value, dev.Name, dev.Namespace, twin.PropertyName, true)
 				if err != nil {
-					klog.Errorf("could not insert data; err: %v\n")
+					klog.Errorf("could not insert data; err: %v\n", err)
 				}
 			}
 		case watch.Modified:
@@ -119,7 +119,7 @@ func handleKube(event chan watch.Event, db database.Database) {
 				}
 				err := db.Insert(tt, twin.Reported.Value, dev.Name, dev.Namespace, twin.PropertyName, true)
 				if err != nil {
-					klog.Errorf("could not insert data; err: %v\n")
+					klog.Errorf("could not insert data; err: %v\n", err)
 				}
 			}
 		}
