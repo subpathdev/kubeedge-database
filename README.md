@@ -29,8 +29,11 @@ different ways to install this kubeedge database connector.
 ### Yaml
 In this case you have to update the YAML file which are provided in the root directory of this repository.
 The following has to be change to your own specification in you kubernetes cluster:
-* 
+- address; this has to be set to your database; specified in the kubeedge-database deployment
+- user; this has to be set to a database user; specified in the kubeedge-database secret
+- password; this has to be set to the database user password; specified in the kubeedge-database secret
 
-### Helm 
-In the root directory of this repo we have created a helm chart which can be used to deploy this connector in your
-kubernetes cluster.
+To apply the pod you can execute this command this:
+```
+kubectl apply -f kubernetes.yaml
+```
