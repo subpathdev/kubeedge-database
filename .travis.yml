@@ -1,0 +1,21 @@
+language: go
+
+sudo: required
+dist: disco
+
+go:
+        - 1.12
+
+before_script:
+        - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
+
+install: true
+
+jobs:
+        include:
+                - stage: "build"
+                  script: make
+                - stage: "lint"
+                  script: make lint
+                - stage: "build docker"
+                  script: make yamllint
