@@ -18,4 +18,4 @@ jobs:
                 - stage: "lint"
                   script: make lint
                 - stage: "build docker"
-                  script: make yamllint
+                  script: make docker
