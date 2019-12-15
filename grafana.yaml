@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-secrets
+type: Opaque
+stringData:
+  database-con: postgres://grafana:test-grafana-password@timescale:5432/grafana
+  admin-pw: verryStrongPassword
+
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: grafana-http
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 3000
+      name: http-grafana
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:6.3.3
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_INSTALL_PLUGINS
+              value: "grafana-clock-panel,grafana-simple-json-datasource"
+            - name: GF_DATABASE_TYPE
+              value: "postgres"
+            - name: GF_REMOTE_CACHE_TYPE
+              value: database
+            - name: GF_DATABASE_SSL_MODE
+              value: disable
+            - name: GF_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: database-con
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: admin-pw
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+              name: http-grafana
+
