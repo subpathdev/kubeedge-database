@@ -38,6 +38,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kubeedge-database
+  namespace: default
 
 ---
 apiVersion: v1
