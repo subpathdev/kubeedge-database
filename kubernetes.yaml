@@ -87,13 +87,13 @@ spec:
                 cluster:
                   certificate-authority: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
               users:
-              - name: kubeedge
+              - name: kubeedge-database
                 user:
                   token: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
               contexts:
               - name: kubeedge
                 context:
-                  cluster: kubeedge
+                  cluster: kubeedge-database
                   user: kubeedge-database
               current-context: kubeedge
               EOF
