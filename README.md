@@ -5,15 +5,15 @@
 * [Setup](#setup)
 
 ## Description
-This extension to [KubeEdge](https://kubeedge.io) will append KubeEdge device/crd with the 
+This extension to [KubeEdge](https://kubeedge.io) will append KubeEdge device/crd with the
 with a database connection. This tool will run on the kubernetes cluster an not in on the edge.
-In this first version we will use 
-[PostgreSQL](https://www.postgresql.org) as database with a opportunity to use automatically the 
-[Timesacle](https://www.timescale.com) plugin. To view the data you can connect to the database via the commandline
+In this first version we will use
+[PostgreSQL](https://www.postgresql.org) as database with a opportunity to use automatically the
+[Timescale](https://www.timescale.com) plugin. To view the data you can connect to the database via the commandline
 tool `psql` or the graphical tool `pgadmin` but we recommend the usage of [Grafana](https://grafana.com/). If you are
 using grafana, you have to convert the value of the to a number. The next example shows you an example grafana database
 query to use by time series views. We will specify the data to one device in one namespace.
-```SQL 
+```SQL
 SELECT $_time(time), value::numeric FROM devices WHERE $_timeFilter(time) AND device="test" AND namespace="default"
 ```
 [TODO Beispiel Bild einfügen von Grafana]: <>
@@ -21,9 +21,9 @@ SELECT $_time(time), value::numeric FROM devices WHERE $_timeFilter(time) AND de
 ## Setup
 In this readme we will not explain how to setup Grafana, PostgreSQL, Timescale or KubeEdge. Before you are trying to setting
 this up, you have to deploy PostgreSQL and KubeEdge with the device/crd in your kubernetes cluster. We are also not describing
-how to create a database role, a database or a schema in PostgreSQL. But you need a database role and a database to set up 
-this connector. With this description you 
-should be able to set up the kubeedge-database in your own kubernetes cluster. The next to chapters will show you two 
+how to create a database role, a database or a schema in PostgreSQL. But you need a database role and a database to set up
+this connector. With this description you
+should be able to set up the kubeedge-database in your own kubernetes cluster. The next to chapters will show you two
 different ways to install this kubeedge database connector.
 
 ### Yaml
