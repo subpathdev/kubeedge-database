@@ -79,13 +79,13 @@ spec:
             - /bin/sh
             - -c
             - |
-              apk --no-cache add coreutils && cat | tee /etc/kubeedge-database/conf/kubeconfig.yaml <<EOF
+              tee /etc/kubeedge-database/conf/kubeconfig.yaml <<EOF
               apiVersion: v1
               kind: Config
               clusters:
               - name: kubeedge-database
                 cluster:
-                  certificate-authority-data: $(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | base64 -w 0)
+                  certificate-authority: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
               users:
               - name: kubeedge-database
                 user:
@@ -93,7 +93,7 @@ spec:
               contexts:
               - name: kubeedge
                 context:
-                  cluster: kubeedge
+                  cluster: kubeedge-database
                   user: kubeedge-database
               current-context: kubeedge
               EOF
@@ -130,4 +130,3 @@ spec:
       restartPolicy: Always
       serviceAccount: kubeedge-database
       serviceAccountName: kubeedge-database
-
